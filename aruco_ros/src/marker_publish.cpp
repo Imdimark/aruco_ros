@@ -41,7 +41,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-
+#include <std_msgs/Int32.h>
 class ArucoMarkerPublisher
 {
 private:
@@ -61,7 +61,7 @@ private:
 
   image_transport::Publisher image_pub_;
   image_transport::Publisher debug_pub_;
-
+  ros::Publisher id_pub_;
   cv::Mat inImage_;
   
 public:
@@ -71,6 +71,7 @@ public:
     image_sub_ = it_.subscribe("/image", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
+    id_pub_ = nh_.advertise<std_msgs::Int32>("detected_ids", 1);
     
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -106,6 +107,9 @@ public:
       for (std::size_t i = 0; i < markers_.size(); ++i)
       {
         markers_[i].draw(inImage_, cv::Scalar(0, 0, 255), 2);
+        std_msgs::Int32 id_msg;
+        id_msg.data = markers_.at(i).id;
+        id_pub_.publish(id_msg); // publish the detected ID
       }
       // publish input image with markers drawn on it
       if (publishImage)
