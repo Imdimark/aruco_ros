@@ -100,6 +100,11 @@ public:
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
           std::cout << markers_.at(i).id << " ";
+          
+          std_msgs::Int32 id_msg;
+        id_msg.data = markers_.at(i).id;
+        id_pub_.publish(id_msg); // publish the detected ID
+        
         }
         std::cout << std::endl;
 
@@ -107,9 +112,7 @@ public:
       for (std::size_t i = 0; i < markers_.size(); ++i)
       {
         markers_[i].draw(inImage_, cv::Scalar(0, 0, 255), 2);
-        std_msgs::Int32 id_msg;
-        id_msg.data = markers_.at(i).id;
-        id_pub_.publish(id_msg); // publish the detected ID
+        
       }
       // publish input image with markers drawn on it
       if (publishImage)
